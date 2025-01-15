@@ -9,6 +9,7 @@ def create_app():
     # Configurações do app
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.sqlite3'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    app.config['SECRET_KEY'] = 'supersecretkey'  # Chave secreta para autenticação
 
     # Inicializar banco de dados
     init_db(app)

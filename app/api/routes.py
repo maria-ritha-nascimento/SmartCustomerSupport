@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify, request, session
 from app.models.database import db
 from app.models.user import User
 
@@ -24,7 +24,8 @@ def create_user():
     if User.query.filter_by(email=email).first():
         return jsonify({"error": "Email already in use"}), 400
 
-    user = User(name=name, email=email, password=password)
+    user = User(name=name, email=email)
+    user.set_password(password)
     db.session.add(user)
     db.session.commit()
 
@@ -53,6 +54,8 @@ def update_user(user_id):
     data = request.get_json()
     user.name = data.get('name', user.name)
     user.email = data.get('email', user.email)
+    if 'password' in data:
+        user.set_password(data['password'])
     db.session.commit()
 
     return jsonify({"message": "User updated successfully", "user": {"id": user.id, "name": user.name, "email": user.email}}), 200
@@ -67,3 +70,26 @@ def delete_user(user_id):
     db.session.commit()
 
     return jsonify({"message": "User deleted successfully"}), 200
+
+# Rota de login
+@api_bp.route('/login', methods=['POST'])
+def login():
+    data = request.get_json()
+    email = data.get('email')
+    password = data.get('password')
+
+    if not email or not password:
+        return jsonify({"error": "Missing email or password"}), 400
+
+    user = User.query.filter_by(email=email).first()
+    if not user or not user.check_password(password):
+        return jsonify({"error": "Invalid email or password"}), 401
+
+    session['user_id'] = user.id
+    return jsonify({"message": "Login successful", "user": {"id": user.id, "name": user.name, "email": user.email}}), 200
+
+# Rota de logout
+@api_bp.route('/logout', methods=['POST'])
+def logout():
+    session.pop('user_id', None)
+    return jsonify({"message": "Logout successful"}), 200
