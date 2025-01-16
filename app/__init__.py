@@ -1,6 +1,7 @@
 from flask import Flask
 from flask_cors import CORS
-from app.models.database import init_db
+from flask_migrate import Migrate  # Import Flask-Migrate
+from app.models.database import init_db, db  # Import db para usar com Migrate
 from app.api.routes import api_bp
 from flask_swagger_ui import get_swaggerui_blueprint
 
@@ -12,6 +13,9 @@ def create_app():
 
     # Inicializar banco de dados
     init_db(app)
+
+    # Configurar Flask-Migrate
+    Migrate(app, db)  # Adicionado para gerenciar migrações
 
     # Configurar CORS
     CORS(app)
