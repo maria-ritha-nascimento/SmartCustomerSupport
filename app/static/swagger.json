@@ -1,0 +1,132 @@
+{
+    "swagger": "2.0",
+    "info": {
+      "version": "1.0.0",
+      "title": "SmartCustomerSupport API",
+      "description": "API para gerenciar usuários e autenticação no SmartCustomerSupport."
+    },
+    "host": "127.0.0.1:5000",
+    "basePath": "/",
+    "schemes": [
+      "http"
+    ],
+    "paths": {
+      "/ping": {
+        "get": {
+          "summary": "Verificar conexão",
+          "description": "Endpoint para verificar se o servidor está respondendo.",
+          "responses": {
+            "200": {
+              "description": "Pong recebido com sucesso."
+            }
+          }
+        }
+      },
+      "/users": {
+        "post": {
+          "summary": "Criar um novo usuário",
+          "description": "Endpoint para criar um novo usuário no sistema.",
+          "parameters": [
+            {
+              "in": "body",
+              "name": "body",
+              "required": true,
+              "description": "Dados do usuário",
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "example": "Maria Silva"
+                  },
+                  "email": {
+                    "type": "string",
+                    "example": "maria@example.com"
+                  },
+                  "password": {
+                    "type": "string",
+                    "example": "senha123"
+                  }
+                },
+                "required": ["name", "email", "password"]
+              }
+            }
+          ],
+          "responses": {
+            "201": {
+              "description": "Usuário criado com sucesso."
+            }
+          }
+        },
+        "get": {
+          "summary": "Listar todos os usuários",
+          "description": "Endpoint para listar todos os usuários cadastrados. Requer autenticação.",
+          "responses": {
+            "200": {
+              "description": "Lista de usuários retornada com sucesso.",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer",
+                      "example": 1
+                    },
+                    "name": {
+                      "type": "string",
+                      "example": "Maria Silva"
+                    },
+                    "email": {
+                      "type": "string",
+                      "example": "maria@example.com"
+                    }
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Acesso não autorizado."
+            }
+          }
+        }
+      },
+      "/login": {
+        "post": {
+          "summary": "Login do usuário",
+          "description": "Endpoint para autenticar um usuário com e-mail e senha.",
+          "parameters": [
+            {
+              "in": "body",
+              "name": "body",
+              "required": true,
+              "description": "Credenciais do usuário",
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "example": "maria@example.com"
+                  },
+                  "password": {
+                    "type": "string",
+                    "example": "senha123"
+                  }
+                },
+                "required": ["email", "password"]
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Login realizado com sucesso."
+            },
+            "401": {
+              "description": "Credenciais inválidas."
+            }
+          }
+        }
+      }
+    }
+  }
+  
