@@ -12,6 +12,9 @@ def ping():
 @api_bp.route('/users', methods=['POST'])
 def create_user():
     data = request.get_json()
+    role = data.get('role', 'customer')  # Por padrão, o usuário será um cliente
+    if role not in ['customer', 'agent']:
+    return jsonify({'error': 'Invalid role specified.'}), 400
     hashed_password = hash_password(data['password'])
     user = User(name=data['name'], email=data['email'], password=hashed_password)
     db.session.add(user)
@@ -30,5 +33,13 @@ def login():
     user = User.query.filter_by(email=data['email']).first()
     if user and verify_password(data['password'], user.password):
         session['user_id'] = user.id
-        return jsonify({'message': 'Login successful'}), 200
+        return jsonify({
+            'message': 'Login successful',
+            'user': {
+                'id': user.id,
+                'name': user.name,
+                'email': user.email,
+                'role': user.role
+            }
+        }), 200
     return jsonify({'error': 'Invalid credentials'}), 401

@@ -15,3 +15,16 @@ def login_required(f):
             return jsonify({'error': 'Unauthorized access. Please log in.'}), 401
         return f(*args, **kwargs)
     return decorated_function
+
+def role_required(required_role):
+    def decorator(f):
+        @wraps(f)
+        def decorated_function(*args, **kwargs):
+            if 'user_id' not in session:
+                return jsonify({'error': 'Unauthorized access. Please log in.'}), 401
+            user = User.query.get(session['user_id'])
+            if user.role != required_role:
+                return jsonify({'error': f'Access restricted to {required_role} only.'}), 403
+            return f(*args, **kwargs)
+        return decorated_function
+    return decorator
