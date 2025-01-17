@@ -1,15 +1,13 @@
 {
   "swagger": "2.0",
   "info": {
-    "version": "1.0.0",
+    "version": "1.0.1",
     "title": "SmartCustomerSupport API",
-    "description": "API para gerenciar usuários, autenticação e papéis no SmartCustomerSupport."
+    "description": "API para gerenciar usuários, autenticação, papéis e tickets no SmartCustomerSupport."
   },
   "host": "127.0.0.1:5000",
   "basePath": "/",
-  "schemes": [
-    "http"
-  ],
+  "schemes": ["http"],
   "paths": {
     "/ping": {
       "get": {
@@ -35,18 +33,9 @@
             "schema": {
               "type": "object",
               "properties": {
-                "name": {
-                  "type": "string",
-                  "example": "Maria Silva"
-                },
-                "email": {
-                  "type": "string",
-                  "example": "maria@example.com"
-                },
-                "password": {
-                  "type": "string",
-                  "example": "senha123"
-                },
+                "name": {"type": "string", "example": "Maria Silva"},
+                "email": {"type": "string", "example": "maria@example.com"},
+                "password": {"type": "string", "example": "senha123"},
                 "role": {
                   "type": "string",
                   "example": "agent",
@@ -58,12 +47,8 @@
           }
         ],
         "responses": {
-          "201": {
-            "description": "Usuário criado com sucesso."
-          },
-          "400": {
-            "description": "Papel inválido especificado."
-          }
+          "201": {"description": "Usuário criado com sucesso."},
+          "400": {"description": "Erro de validação."}
         }
       },
       "get": {
@@ -77,29 +62,15 @@
               "items": {
                 "type": "object",
                 "properties": {
-                  "id": {
-                    "type": "integer",
-                    "example": 1
-                  },
-                  "name": {
-                    "type": "string",
-                    "example": "Maria Silva"
-                  },
-                  "email": {
-                    "type": "string",
-                    "example": "maria@example.com"
-                  },
-                  "role": {
-                    "type": "string",
-                    "example": "customer"
-                  }
+                  "id": {"type": "integer", "example": 1},
+                  "name": {"type": "string", "example": "Maria Silva"},
+                  "email": {"type": "string", "example": "maria@example.com"},
+                  "role": {"type": "string", "example": "customer"}
                 }
               }
             }
           },
-          "401": {
-            "description": "Acesso não autorizado."
-          }
+          "401": {"description": "Acesso não autorizado."}
         }
       }
     },
@@ -116,14 +87,8 @@
             "schema": {
               "type": "object",
               "properties": {
-                "email": {
-                  "type": "string",
-                  "example": "maria@example.com"
-                },
-                "password": {
-                  "type": "string",
-                  "example": "senha123"
-                }
+                "email": {"type": "string", "example": "maria@example.com"},
+                "password": {"type": "string", "example": "senha123"}
               },
               "required": ["email", "password"]
             }
@@ -135,37 +100,30 @@
             "schema": {
               "type": "object",
               "properties": {
-                "message": {
-                  "type": "string",
-                  "example": "Login successful"
-                },
+                "message": {"type": "string", "example": "Login successful"},
                 "user": {
                   "type": "object",
                   "properties": {
-                    "id": {
-                      "type": "integer",
-                      "example": 1
-                    },
-                    "name": {
-                      "type": "string",
-                      "example": "Maria Silva"
-                    },
-                    "email": {
-                      "type": "string",
-                      "example": "maria@example.com"
-                    },
-                    "role": {
-                      "type": "string",
-                      "example": "customer"
-                    }
+                    "id": {"type": "integer", "example": 1},
+                    "name": {"type": "string", "example": "Maria Silva"},
+                    "email": {"type": "string", "example": "maria@example.com"},
+                    "role": {"type": "string", "example": "customer"}
                   }
                 }
               }
             }
           },
-          "401": {
-            "description": "Credenciais inválidas."
-          }
+          "401": {"description": "Credenciais inválidas."}
+        }
+      }
+    },
+    "/logout": {
+      "post": {
+        "summary": "Logout do usuário",
+        "description": "Endpoint para fazer logout do usuário autenticado.",
+        "responses": {
+          "200": {"description": "Logout realizado com sucesso."},
+          "401": {"description": "Acesso não autorizado."}
         }
       }
     },
@@ -179,19 +137,117 @@
             "schema": {
               "type": "object",
               "properties": {
-                "message": {
+                "message": {"type": "string", "example": "Hello, agent!"}
+              }
+            }
+          },
+          "403": {"description": "Acesso restrito para atendentes."},
+          "401": {"description": "Acesso não autorizado. Por favor, faça login."}
+        }
+      }
+    },
+    "/tickets": {
+      "post": {
+        "summary": "Criar um novo ticket",
+        "description": "Endpoint para criar um ticket. Apenas clientes podem criar tickets.",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "description": "Dados do ticket",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "title": {"type": "string", "example": "Problema no sistema"},
+                "description": {
                   "type": "string",
-                  "example": "Hello, agent!"
+                  "example": "O sistema não está carregando as páginas corretamente."
+                }
+              },
+              "required": ["title", "description"]
+            }
+          }
+        ],
+        "responses": {
+          "201": {"description": "Ticket criado com sucesso."},
+          "401": {"description": "Acesso não autorizado."}
+        }
+      },
+      "get": {
+        "summary": "Listar tickets",
+        "description": "Endpoint para listar todos os tickets. Clientes veem apenas seus tickets; atendentes veem todos.",
+        "responses": {
+          "200": {
+            "description": "Lista de tickets retornada com sucesso.",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {"type": "integer", "example": 1},
+                  "title": {"type": "string", "example": "Problema no sistema"},
+                  "description": {"type": "string", "example": "Detalhes do problema."},
+                  "status": {"type": "string", "example": "open"},
+                  "client_id": {"type": "integer", "example": 2},
+                  "agent_id": {"type": "integer", "example": 1},
+                  "created_at": {"type": "string", "example": "2025-01-15T10:00:00Z"},
+                  "updated_at": {"type": "string", "example": "2025-01-16T15:00:00Z"}
                 }
               }
             }
           },
-          "403": {
-            "description": "Acesso restrito para atendentes."
+          "401": {"description": "Acesso não autorizado."}
+        }
+      }
+    },
+    "/tickets/{ticket_id}": {
+      "put": {
+        "summary": "Atualizar um ticket",
+        "description": "Endpoint para atualizar um ticket. Apenas atendentes podem atualizar tickets.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "ticket_id",
+            "required": true,
+            "description": "ID do ticket a ser atualizado",
+            "type": "integer"
           },
-          "401": {
-            "description": "Acesso não autorizado. Por favor, faça login."
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "description": "Dados para atualização",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {"type": "string", "example": "in_progress", "enum": ["open", "in_progress", "closed"]}
+              }
+            }
           }
+        ],
+        "responses": {
+          "200": {"description": "Ticket atualizado com sucesso."},
+          "404": {"description": "Ticket não encontrado."},
+          "401": {"description": "Acesso não autorizado."}
+        }
+      },
+      "delete": {
+        "summary": "Excluir um ticket",
+        "description": "Endpoint para excluir um ticket. Apenas atendentes podem excluir tickets.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "ticket_id",
+            "required": true,
+            "description": "ID do ticket a ser excluído",
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {"description": "Ticket excluído com sucesso."},
+          "404": {"description": "Ticket não encontrado."},
+          "401": {"description": "Acesso não autorizado."}
         }
       }
     }
