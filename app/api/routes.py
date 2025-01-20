@@ -2,7 +2,7 @@ from flask import Blueprint, jsonify, request, session
 from app.models.database import db
 from app.models.user import User
 from app.models.ticket import Ticket
-from app.utils.auth import hash_password, verify_password, login_required, role_required
+from app.utils.auth import hash_password, verify_password, login_required, role_required, any_role_required
 
 api_bp = Blueprint('api', __name__)
 
@@ -49,6 +49,7 @@ def create_user():
 
 @api_bp.route('/users', methods=['GET'])
 @login_required
+@role_required('agent')  # Apenas agentes podem ver todos os usuários
 def get_users():
     """
     Endpoint para listar todos os usuários cadastrados.
@@ -114,6 +115,7 @@ def create_ticket():
 
 @api_bp.route('/tickets', methods=['GET'])
 @login_required
+@any_role_required('customer', 'agent')  # Permite clientes e agentes
 def get_tickets():
     """
     Endpoint para listar todos os tickets.
